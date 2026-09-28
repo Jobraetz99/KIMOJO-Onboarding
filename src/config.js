@@ -53,7 +53,7 @@ export const SP_STATUS = {
 export const PROZESSHELFER = {
   kimojo: {
     label:    'KIMOJO Prozesshelfer',
-    embedUrl: '',
+    embedUrl: 'https://copilotstudio.microsoft.com/environments/be8da6d2-efc9-e584-9d0a-c7a9ba554448/bots/cr161_kimojoonboardinghelfer_3n7jd7/webchat?__version__=2&enableFileAttachment=false&cliAgent=true',
     teamsUrl: 'https://teams.microsoft.com/l/app/?titleId=T_b062d7dc-312d-2127-97d6-78082d204ca6',
   },
   phfip: {
