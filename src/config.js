@@ -40,6 +40,21 @@ export const SP_STATUS = {
   erledigt: 'Erledigt',
 }
 
+// ─── Prozesshelfer (Copilot Studio Agents) ───────────────────────────────────
+// Link aus Copilot Studio → Kanäle → "Vorschau teilen" → Demo-Website.
+// Auswahl erfolgt nach E-Mail-Domain (siehe detectLocation in graphService).
+// Leerer String = Kachel wird ausgeblendet.
+export const PROZESSHELFER = {
+  kimojo: {
+    label: 'KIMOJO Prozesshelfer',
+    url:   'https://teams.microsoft.com/l/app/?titleId=T_b062d7dc-312d-2127-97d6-78082d204ca6',
+  },
+  phfip: {
+    label: 'PfFiP Prozesshelfer',
+    url:   'https://teams.microsoft.com/l/app/?titleId=T_4e43d23d-e77f-d463-04eb-a2b77755c01a',
+  },
+}
+
 // ─── Claude / KI-Assistent ───────────────────────────────────────────────────
 export const AI_CONFIG = {
   // OPTION A: Direkte Claude-API (nur für Entwicklung / interne Apps)

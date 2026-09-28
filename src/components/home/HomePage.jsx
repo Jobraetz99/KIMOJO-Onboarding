@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion'
 import {
   ClipboardCheck, Brain, Users, ChevronRight,
-  Sparkles,
+  Sparkles, Bot,
 } from 'lucide-react'
 import { detectLocation } from '@/services/graphService'
+import { PROZESSHELFER } from '@/config'
 
 export default function HomePage({ user, onNavigate, completedCount, totalCount, percent, quizStats }) {
   const email = user?.mail || user?.userPrincipalName || ''
@@ -11,6 +12,7 @@ export default function HomePage({ user, onNavigate, completedCount, totalCount,
   const firstName = user?.displayName?.split(' ')[0] ?? ''
 
   const isKitzingen = location === 'kitzingen'
+  const helper = isKitzingen ? PROZESSHELFER.phfip : PROZESSHELFER.kimojo
 
   // Standortabhängige Konfiguration
   const brand = isKitzingen
@@ -143,6 +145,19 @@ export default function HomePage({ user, onNavigate, completedCount, totalCount,
           onClick={() => onNavigate('portal')}
           delay={0.3}
         />
+
+        {/* Tile 4: Prozesshelfer (Copilot Studio, öffnet extern) */}
+        {helper.url && (
+          <DashboardTile
+            icon={<Bot size={24} />}
+            color="bg-amber-50"
+            iconColor="text-amber-600"
+            title={helper.label}
+            subtitle="Fragen zu Abläufen & Prozessen stellen"
+            onClick={() => window.open(helper.url, '_blank', 'noopener,noreferrer')}
+            delay={0.4}
+          />
+        )}
       </div>
     </div>
   )
