@@ -6,7 +6,10 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',
+      // 'prompt' liess den alten Service Worker weiterlaufen: er lieferte die
+      // alte index.html, deren Bundle nach dem Deploy nicht mehr existiert
+      // → weisse Seite. 'autoUpdate' übernimmt neue Versionen sofort.
+      registerType: 'autoUpdate',
       includeAssets: ['icons/*.png', 'icons/*.svg'],
       manifest: {
         name: 'KIMOJO Onboarding',
@@ -23,6 +26,8 @@ export default defineConfig({
         ]
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         // Der Chat-Canvas (botframework-webchat) ist mehrere MB gross und wird
         // ohnehin erst beim Öffnen des Prozesshelfers nachgeladen – er gehört
         // nicht in den Precache.
