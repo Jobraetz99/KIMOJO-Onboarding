@@ -101,7 +101,10 @@ export default function CopilotChat({ helper, user, onFailure }) {
       if (!token) throw new Error('Kein Direct-Line-Token erhalten')
 
       if (cancelled) return
-      const dl = createDirectLine({ token })
+      // webSocket: false → Long Polling. Der WebSocket-Stream wird auf iPads
+      // und in manchen Netzen stillschweigend abgewürgt; dann kommen zwar
+      // eigene Nachrichten durch, aber keine Antworten mehr an.
+      const dl = createDirectLine({ token, webSocket: false })
       directLineRef.current = dl
       setDirectLine(dl)
     }
