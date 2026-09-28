@@ -101,10 +101,16 @@ export default function CopilotChat({ helper, user, onFailure }) {
       if (!token) throw new Error('Kein Direct-Line-Token erhalten')
 
       if (cancelled) return
-      // webSocket: false → Long Polling. Der WebSocket-Stream wird auf iPads
-      // und in manchen Netzen stillschweigend abgewürgt; dann kommen zwar
-      // eigene Nachrichten durch, aber keine Antworten mehr an.
-      const dl = createDirectLine({ token, webSocket: false })
+      // domain: Der Agent liegt im Europa-Cluster (Unterhaltungs-IDs enden auf
+      // "-eu"). Gegen den globalen Direct-Line-Endpunkt lässt sich die
+      // Unterhaltung zwar anlegen, sie erreicht den Agenten aber nie – man
+      // sieht dann nur die eigenen Nachrichten und wartet ewig auf Antwort.
+      // webSocket: false → Long Polling, auf dem iPad zuverlässiger.
+      const dl = createDirectLine({
+        token,
+        domain: 'https://europe.directline.botframework.com/v3/directline',
+        webSocket: false,
+      })
       directLineRef.current = dl
       setDirectLine(dl)
     }
