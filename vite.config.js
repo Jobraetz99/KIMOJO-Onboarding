@@ -23,6 +23,10 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // Der Chat-Canvas (botframework-webchat) ist mehrere MB gross und wird
+        // ohnehin erst beim Öffnen des Prozesshelfers nachgeladen – er gehört
+        // nicht in den Precache.
+        globIgnores: ['**/CopilotChat-*.js'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/graph\.microsoft\.com\/.*/i,

@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { Suspense, lazy, useCallback, useState } from 'react'
 import { Bot, ExternalLink, RefreshCw } from 'lucide-react'
 import { detectLocation } from '@/services/graphService'
 import { PROZESSHELFER } from '@/config'
+
+// Der Chat-Canvas bringt botframework-webchat mit (~1 MB) und wird deshalb
+// erst geladen, wenn der Prozesshelfer wirklich geöffnet wird.
+const CopilotChat = lazy(() => import('./CopilotChat'))
 
 export default function ProzesshelferView({ user }) {
   const email = user?.mail || user?.userPrincipalName || ''
@@ -9,28 +13,37 @@ export default function ProzesshelferView({ user }) {
   const helper = isKitzingen ? PROZESSHELFER.phfip : PROZESSHELFER.kimojo
 
   const [loaded, setLoaded] = useState(false)
+  const [chatFailed, setChatFailed] = useState(false)
+  const handleChatFailure = useCallback(() => setChatFailed(true), [])
 
-  if (!helper.embedUrl) {
+  if (!helper.embedUrl && !helper.tokenUrl) {
     return <FallbackCard helper={helper} isKitzingen={isKitzingen} />
   }
 
+  const useSso = helper.tokenUrl && !chatFailed
+
   return (
     <div className="flex-1 flex flex-col">
-      <div className="relative flex-1">
-        {!loaded && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-surface-subtle">
-            <RefreshCw size={20} className="text-ink-faint animate-spin" />
-            <p className="text-ink-muted font-body text-sm">{helper.label} wird geladen…</p>
-          </div>
-        )}
-        <iframe
-          src={helper.embedUrl}
-          title={helper.label}
-          onLoad={() => setLoaded(true)}
-          className="w-full h-full border-0"
-          allow="microphone; clipboard-write"
-        />
-      </div>
+      {useSso ? (
+        <Suspense fallback={<LoadingPane label={helper.label} />}>
+          <CopilotChat helper={helper} user={user} onFailure={handleChatFailure} />
+        </Suspense>
+      ) : (
+        <div className="relative flex-1">
+          {!loaded && (
+            <div className="absolute inset-0 bg-surface-subtle">
+              <LoadingPane label={helper.label} />
+            </div>
+          )}
+          <iframe
+            src={helper.embedUrl}
+            title={helper.label}
+            onLoad={() => setLoaded(true)}
+            className="w-full h-full border-0"
+            allow="microphone; clipboard-write"
+          />
+        </div>
+      )}
 
       {helper.teamsUrl && (
         <div className="px-4 py-3 border-t border-gray-100 bg-white">
@@ -45,6 +58,15 @@ export default function ProzesshelferView({ user }) {
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+function LoadingPane({ label }) {
+  return (
+    <div className="w-full h-full flex-1 flex flex-col items-center justify-center gap-3">
+      <RefreshCw size={20} className="text-ink-faint animate-spin" />
+      <p className="text-ink-muted font-body text-sm">{label} wird geladen…</p>
     </div>
   )
 }
