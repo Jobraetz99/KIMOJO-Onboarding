@@ -28,7 +28,16 @@ export default function CopilotChat({ helper, user, onFailure }) {
   // Anmeldekarte des Agenten still mit dem App-Token beantworten
   const store = useMemo(
     () =>
-      createStore({}, () => next => action => {
+      createStore({}, ({ dispatch }) => next => action => {
+        // Copilot Studio antwortet erst, wenn der Canvas die Unterhaltung
+        // ausdrücklich startet – der fertige iframe macht das intern.
+        if (action.type === 'DIRECT_LINE/CONNECT_FULFILLED') {
+          dispatch({
+            type: 'WEB_CHAT/SEND_EVENT',
+            payload: { name: 'startConversation', type: 'event', value: { text: 'hallo' } },
+          })
+        }
+
         if (action.type !== 'DIRECT_LINE/INCOMING_ACTIVITY') return next(action)
 
         const activity = action.payload?.activity
