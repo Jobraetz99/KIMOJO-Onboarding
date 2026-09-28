@@ -146,15 +146,15 @@ export default function HomePage({ user, onNavigate, completedCount, totalCount,
           delay={0.3}
         />
 
-        {/* Tile 4: Prozesshelfer (Copilot Studio, öffnet extern) */}
-        {helper.url && (
+        {/* Tile 4: Prozesshelfer (Copilot Studio Agent) */}
+        {(helper.embedUrl || helper.teamsUrl) && (
           <DashboardTile
             icon={<Bot size={24} />}
             color="bg-amber-50"
             iconColor="text-amber-600"
             title={helper.label}
             subtitle="Fragen zu Abläufen & Prozessen stellen"
-            onClick={() => window.open(helper.url, '_blank', 'noopener,noreferrer')}
+            onClick={() => onNavigate('helfer')}
             delay={0.4}
           />
         )}

@@ -12,6 +12,7 @@ import HomePage      from '@/components/home/HomePage'
 import ChecklistView from '@/components/checklist/ChecklistView'
 import QuizView      from '@/components/quiz/QuizView'
 import PortalView    from '@/components/portal/PortalView'
+import ProzesshelferView from '@/components/helper/ProzesshelferView'
 import AIAssistant   from '@/components/assistant/AIAssistant'
 
 export default function App() {
@@ -40,7 +41,7 @@ export default function App() {
 }
 
 function AuthenticatedApp({ user }) {
-  const [page, setPage] = useState('home') // 'home' | 'onboarding' | 'quiz' | 'portal'
+  const [page, setPage] = useState('home') // 'home' | 'onboarding' | 'quiz' | 'portal' | 'helfer'
   const { tasks, completedCount, totalCount, percent, reload: reloadChecklist } = useChecklist(user)
   const [documents, setDocuments] = useState([])
   const [quizStats, setQuizStats] = useState({ total: 0, done: 0 })
@@ -87,6 +88,9 @@ function AuthenticatedApp({ user }) {
       )}
       {page === 'portal' && (
         <PortalView user={user} />
+      )}
+      {page === 'helfer' && (
+        <ProzesshelferView user={user} />
       )}
       {page === 'onboarding' && (
         <AIAssistant
