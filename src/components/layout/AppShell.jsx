@@ -20,7 +20,6 @@ export default function AppShell({ user, page, onNavigate, children }) {
     onboarding: 'Onboarding',
     quiz: 'Quizze',
     portal: isKitzingen ? 'PfFiP Teamportal' : 'KIMOJO Teamportal',
-    helfer: 'Prozesshelfer',
   }[page] ?? 'KIMOJO'
 
   const brandColor = isKitzingen ? 'bg-phfip-teal' : 'bg-kimojo-red'

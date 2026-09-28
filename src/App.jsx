@@ -12,7 +12,7 @@ import HomePage      from '@/components/home/HomePage'
 import ChecklistView from '@/components/checklist/ChecklistView'
 import QuizView      from '@/components/quiz/QuizView'
 import PortalView    from '@/components/portal/PortalView'
-import ProzesshelferView from '@/components/helper/ProzesshelferView'
+import ProzesshelferFab from '@/components/helper/ProzesshelferFab'
 import AIAssistant   from '@/components/assistant/AIAssistant'
 
 export default function App() {
@@ -41,7 +41,8 @@ export default function App() {
 }
 
 function AuthenticatedApp({ user }) {
-  const [page, setPage] = useState('home') // 'home' | 'onboarding' | 'quiz' | 'portal' | 'helfer'
+  const [page, setPage] = useState('home') // 'home' | 'onboarding' | 'quiz' | 'portal'
+  const [helperOpen, setHelperOpen] = useState(false)
   const { tasks, completedCount, totalCount, percent, reload: reloadChecklist } = useChecklist(user)
   const [documents, setDocuments] = useState([])
   const [quizStats, setQuizStats] = useState({ total: 0, done: 0 })
@@ -78,6 +79,7 @@ function AuthenticatedApp({ user }) {
           totalCount={totalCount}
           percent={percent}
           quizStats={quizStats}
+          onOpenHelper={() => setHelperOpen(true)}
         />
       )}
       {page === 'onboarding' && (
@@ -89,9 +91,7 @@ function AuthenticatedApp({ user }) {
       {page === 'portal' && (
         <PortalView user={user} />
       )}
-      {page === 'helfer' && (
-        <ProzesshelferView user={user} />
-      )}
+      <ProzesshelferFab user={user} open={helperOpen} onToggle={setHelperOpen} />
       {page === 'onboarding' && (
         <AIAssistant
           user={user}

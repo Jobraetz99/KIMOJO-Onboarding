@@ -6,7 +6,7 @@ import {
 import { detectLocation } from '@/services/graphService'
 import { PROZESSHELFER } from '@/config'
 
-export default function HomePage({ user, onNavigate, completedCount, totalCount, percent, quizStats }) {
+export default function HomePage({ user, onNavigate, completedCount, totalCount, percent, quizStats, onOpenHelper }) {
   const email = user?.mail || user?.userPrincipalName || ''
   const location = detectLocation(email)
   const firstName = user?.displayName?.split(' ')[0] ?? ''
@@ -147,14 +147,14 @@ export default function HomePage({ user, onNavigate, completedCount, totalCount,
         />
 
         {/* Tile 4: Prozesshelfer (Copilot Studio Agent) */}
-        {(helper.embedUrl || helper.teamsUrl) && (
+        {(helper.tokenUrl || helper.embedUrl || helper.teamsUrl) && (
           <DashboardTile
             icon={<Bot size={24} />}
             color="bg-amber-50"
             iconColor="text-amber-600"
             title={helper.label}
             subtitle="Fragen zu Abläufen & Prozessen stellen"
-            onClick={() => onNavigate('helfer')}
+            onClick={onOpenHelper}
             delay={0.4}
           />
         )}
