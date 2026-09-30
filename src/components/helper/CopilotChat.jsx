@@ -66,12 +66,14 @@ export default function CopilotChat({ helper, user, onFailure }) {
             },
             from: { id: userId, name: userName, role: 'user' },
           })
-          .subscribe({
-            // Tausch abgelehnt → Karte doch anzeigen, damit der Nutzer manuell kann
-            error: () => next(action),
-          })
+          .subscribe({ error: () => {} })
 
-        return // Karte verschlucken, solange der Tausch läuft
+        // Karte trotzdem anzeigen. Lehnt Copilot Studio den Tausch inhaltlich ab,
+        // meldet postActivity keinen Fehler – die Karte zu verschlucken liesse den
+        // Agenten dann ohne Token weiterlaufen: die SharePoint-Suche kommt leer
+        // zurück und er erfindet die Antwort. Klappt der Tausch, meldet der Agent
+        // die Anmeldung selbst als erledigt und die Karte ist gegenstandslos.
+        return next(action)
       }),
     [userId, userName]
   )
