@@ -43,35 +43,34 @@ export const SP_STATUS = {
 // ─── Prozesshelfer (Copilot Studio Agents) ───────────────────────────────────
 // Auswahl erfolgt nach E-Mail-Domain (siehe detectLocation in graphService).
 //
-// tokenUrl  → Direct-Line-Token-Endpunkt des Agenten. Damit läuft der Chat in
-//             einem eigenen Canvas, der den MSAL-Token der App per SSO
-//             weiterreicht – der Mitarbeiter muss sich also nicht nochmal
-//             anmelden. Voraussetzung: im Agenten "Einmaliges Anmelden" aktiv
-//             und die App-Client-ID als autorisierte Clientanwendung in der
-//             App-Registrierung des Agenten hinterlegt.
-//             Aufbau: https://{env-host}/powervirtualagents/botsbyschema/{schema}/directline/token
-//             Den env-host liefert Copilot Studio → Kanäle → Web-App →
-//             "Verbindungszeichenfolge".
-// ssoScope  → Scope der App-Registrierung des Agenten, für den die App still
-//             einen Token holt (api://{client-id}/{scope}).
-// embedUrl  → Fallback ohne SSO: der fertige Copilot-Studio-iframe. Wird nur
-//             benutzt, wenn tokenUrl leer ist oder der SSO-Chat scheitert.
-// teamsUrl  → Letzter Fallback: öffnet den Agenten in Teams (neuer Tab).
+// tokenUrl  → Direct-Line-Token-Endpunkt des Agenten für den eigenen Chat-Canvas.
+// ssoScope  → Scope der App-Registrierung des Agenten (api://{client-id}/{scope}).
+// embedUrl  → Fallback ohne SSO: der fertige Copilot-Studio-iframe.
+// openUrl   → Agent in einem neuen Tab öffnen.
 // Alle leer = Kachel wird ausgeblendet.
+//
+// tokenUrl und embedUrl sind für KIMOJO bewusst leer (Stand 30.09.2026): der
+// eingebettete Chat verbindet und antwortet zwar, findet aber keine
+// SharePoint-Inhalte – die Suche kommt leer zurück und der Agent erfindet die
+// Antwort. Durchgeprüft und ausgeschlossen: Graph-Berechtigungen samt
+// Administratorzustimmung, Bereiche, Verbundanmeldeinformationen, Token-
+// Austausch-URL, Veröffentlichung, Indizierung der Quellen. Über den
+// M365-Copilot-Kanal liefert derselbe Agent korrekte Antworten mit Quellen,
+// deshalb vorerst openUrl. Die alten Werte stehen in der Git-Historie.
 export const PROZESSHELFER = {
   kimojo: {
     label:    'KIMOJO Prozesshelfer',
-    tokenUrl: 'https://be8da6d2efc9e5849d0ac7a9ba5544.48.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr161_KIMOJOProzesshelfer/directline/token?api-version=2022-03-01-preview',
-    ssoScope: 'api://e0c892aa-a475-481d-921c-32f4c068bf32/copilot.studio.scope',
-    embedUrl: 'https://copilotstudio.microsoft.com/environments/be8da6d2-efc9-e584-9d0a-c7a9ba554448/bots/cr161_KIMOJOProzesshelfer/webchat?__version__=2',
-    teamsUrl: 'https://teams.microsoft.com/l/app/?titleId=T_b062d7dc-312d-2127-97d6-78082d204ca6',
+    tokenUrl: '',
+    ssoScope: '',
+    embedUrl: '',
+    openUrl:  'https://m365.cloud.microsoft/chat/resolve/T_67c2dc96-5f98-66cf-8cb1-41168c6db444',
   },
   phfip: {
     label:    'PfFiP Prozesshelfer',
     tokenUrl: '',
     ssoScope: '',
     embedUrl: '',
-    teamsUrl: 'https://teams.microsoft.com/l/app/?titleId=T_4e43d23d-e77f-d463-04eb-a2b77755c01a',
+    openUrl:  'https://teams.microsoft.com/l/app/?titleId=T_4e43d23d-e77f-d463-04eb-a2b77755c01a',
   },
 }
 

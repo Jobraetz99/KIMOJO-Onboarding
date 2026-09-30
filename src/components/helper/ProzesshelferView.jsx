@@ -47,15 +47,15 @@ export default function ProzesshelferView({ user }) {
         </div>
       )}
 
-      {helper.teamsUrl && (
+      {helper.openUrl && (
         <div className="px-4 py-3 border-t border-gray-100 bg-white">
           <button
-            onClick={() => window.open(helper.teamsUrl, '_blank', 'noopener,noreferrer')}
+            onClick={() => window.open(helper.openUrl, '_blank', 'noopener,noreferrer')}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-100 active:scale-[0.98] transition-transform"
           >
             <ExternalLink size={15} className="text-ink-muted" />
             <span className="font-body text-[13px] text-ink-muted">
-              Lädt nicht? In Teams öffnen
+              Lädt nicht? In neuem Tab öffnen
             </span>
           </button>
         </div>
@@ -85,16 +85,16 @@ function FallbackCard({ helper, isKitzingen }) {
       <div>
         <h2 className="font-display font-bold text-[18px] text-ink">{helper.label}</h2>
         <p className="text-ink-muted font-body text-sm mt-1">
-          Der Agent läuft aktuell in Microsoft Teams.
+          Stell deine Frage direkt beim Agenten – er öffnet sich in einem neuen Tab.
         </p>
       </div>
-      {helper.teamsUrl && (
+      {helper.openUrl && (
         <button
-          onClick={() => window.open(helper.teamsUrl, '_blank', 'noopener,noreferrer')}
+          onClick={() => window.open(helper.openUrl, '_blank', 'noopener,noreferrer')}
           className="flex items-center gap-2 px-5 py-3 rounded-xl bg-ink text-white active:scale-[0.98] transition-transform"
         >
           <ExternalLink size={16} />
-          <span className="font-display font-semibold text-sm">In Teams öffnen</span>
+          <span className="font-display font-semibold text-sm">Prozesshelfer öffnen</span>
         </button>
       )}
     </div>

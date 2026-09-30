@@ -20,7 +20,7 @@ export default function ProzesshelferFab({ user, open, onToggle }) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { if (open) setMounted(true) }, [open])
 
-  if (!helper.tokenUrl && !helper.embedUrl && !helper.teamsUrl) return null
+  if (!helper.tokenUrl && !helper.embedUrl && !helper.openUrl) return null
 
   const accent = isKitzingen ? 'bg-phfip-teal' : 'bg-kimojo-red'
 
@@ -77,7 +77,11 @@ export default function ProzesshelferFab({ user, open, onToggle }) {
           Chatverlauf. Zum Schliessen gibt es das X in der Sheet-Kopfzeile. */}
       {!open && (
         <motion.button
-          onClick={() => onToggle(true)}
+          onClick={
+            helper.tokenUrl || helper.embedUrl
+              ? () => onToggle(true)
+              : () => window.open(helper.openUrl, '_blank', 'noopener,noreferrer')
+          }
           whileTap={{ scale: 0.9 }}
           className={`fixed z-40 w-14 h-14 rounded-full ${accent} shadow-float flex items-center justify-center`}
           style={{ bottom: 'max(2rem, calc(env(safe-area-inset-bottom) + 1rem))', left: '1.5rem' }}

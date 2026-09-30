@@ -147,14 +147,21 @@ export default function HomePage({ user, onNavigate, completedCount, totalCount,
         />
 
         {/* Tile 4: Prozesshelfer (Copilot Studio Agent) */}
-        {(helper.tokenUrl || helper.embedUrl || helper.teamsUrl) && (
+        {(helper.tokenUrl || helper.embedUrl || helper.openUrl) && (
           <DashboardTile
             icon={<Bot size={24} />}
             color="bg-amber-50"
             iconColor="text-amber-600"
             title={helper.label}
             subtitle="Fragen zu Abläufen & Prozessen stellen"
-            onClick={onOpenHelper}
+            // Ohne eingebetteten Chat direkt zum Agenten springen, statt ein
+            // Sheet zu öffnen, in dem nur ein zweiter Knopf steht. window.open
+            // muss dabei im Klick selbst passieren, sonst blockt Safari es.
+            onClick={
+              helper.tokenUrl || helper.embedUrl
+                ? onOpenHelper
+                : () => window.open(helper.openUrl, '_blank', 'noopener,noreferrer')
+            }
             delay={0.4}
           />
         )}
