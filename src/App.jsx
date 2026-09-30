@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useIsAuthenticated, useMsal } from '@azure/msal-react'
 import { InteractionStatus } from '@azure/msal-browser'
 import { RefreshCw } from 'lucide-react'
-import { fetchMe, fetchAllDocuments, fetchQuizzes, fetchQuizProgress } from '@/services/graphService'
+import { fetchMe, fetchQuizzes, fetchQuizProgress } from '@/services/graphService'
 import { loginRequest } from '@/services/authConfig'
 import { useChecklist } from '@/hooks/useChecklist'
 
@@ -13,7 +13,6 @@ import ChecklistView from '@/components/checklist/ChecklistView'
 import QuizView      from '@/components/quiz/QuizView'
 import PortalView    from '@/components/portal/PortalView'
 import ProzesshelferFab from '@/components/helper/ProzesshelferFab'
-import AIAssistant   from '@/components/assistant/AIAssistant'
 
 export default function App() {
   const isAuthenticated = useIsAuthenticated()
@@ -46,17 +45,11 @@ export default function App() {
 function AuthenticatedApp({ user }) {
   const [page, setPage] = useState('home') // 'home' | 'onboarding' | 'quiz' | 'portal'
   const [helperOpen, setHelperOpen] = useState(false)
-  const { tasks, completedCount, totalCount, percent, reload: reloadChecklist } = useChecklist(user)
-  const [documents, setDocuments] = useState([])
+  const { completedCount, totalCount, percent, reload: reloadChecklist } = useChecklist(user)
   const [quizStats, setQuizStats] = useState({ total: 0, done: 0 })
 
   const email = user?.mail || user?.userPrincipalName || ''
   const displayName = user?.displayName ?? ''
-
-  // Dokumente einmalig laden
-  useEffect(() => {
-    fetchAllDocuments(email).then(setDocuments).catch(() => {})
-  }, [email])
 
   // Quiz + Onboarding stats laden/refreshen wenn Home-Seite angezeigt wird
   useEffect(() => {
@@ -95,15 +88,6 @@ function AuthenticatedApp({ user }) {
         <PortalView user={user} />
       )}
       <ProzesshelferFab user={user} open={helperOpen} onToggle={setHelperOpen} />
-      {page === 'onboarding' && (
-        <AIAssistant
-          user={user}
-          tasks={tasks}
-          completedCount={completedCount}
-          totalCount={totalCount}
-          documents={documents}
-        />
-      )}
     </AppShell>
   )
 }
