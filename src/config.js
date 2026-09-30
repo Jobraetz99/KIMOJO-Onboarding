@@ -62,12 +62,7 @@ export const PROZESSHELFER = {
   kimojo: {
     label:    'KIMOJO Prozesshelfer',
     tokenUrl: 'https://be8da6d2efc9e5849d0ac7a9ba5544.48.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr161_KIMOJOProzesshelfer/directline/token?api-version=2022-03-01-preview',
-    // Vorübergehend leer: die stille Weitergabe wurde offenbar von Copilot
-    // Studio verworfen, ohne dass es auffiel – der Agent antwortete dann ohne
-    // SharePoint-Zugriff. Leer heisst: Anmeldekarte im Chat anklicken.
-    // Wieder auf 'api://e0c892aa-a475-481d-921c-32f4c068bf32/copilot.studio.scope'
-    // setzen, sobald die Ursache gefunden ist.
-    ssoScope: '',
+    ssoScope: 'api://e0c892aa-a475-481d-921c-32f4c068bf32/copilot.studio.scope',
     embedUrl: 'https://copilotstudio.microsoft.com/environments/be8da6d2-efc9-e584-9d0a-c7a9ba554448/bots/cr161_KIMOJOProzesshelfer/webchat?__version__=2',
     teamsUrl: 'https://teams.microsoft.com/l/app/?titleId=T_b062d7dc-312d-2127-97d6-78082d204ca6',
   },
