@@ -20,13 +20,15 @@ export default function App() {
   const { inProgress }  = useMsal()
   const [user,    setUser]    = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error,   setError]   = useState(null)
 
   useEffect(() => {
     if (!isAuthenticated) { setUser(null); return }
     setLoading(true)
+    setError(null)
     fetchMe()
       .then(setUser)
-      .catch(console.error)
+      .catch(err => { console.error(err); setError(err) })
       .finally(() => setLoading(false))
   }, [isAuthenticated])
 
@@ -35,6 +37,7 @@ export default function App() {
   }
 
   if (!isAuthenticated) return <LoginScreen />
+  if (error) return <ErrorScreen error={error} />
   if (loading || !user) return <LoadingScreen message="Profil laden…" />
 
   return <AuthenticatedApp user={user} />
@@ -102,6 +105,33 @@ function AuthenticatedApp({ user }) {
         />
       )}
     </AppShell>
+  )
+}
+
+function ErrorScreen({ error }) {
+  const { instance } = useMsal()
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center bg-surface-subtle">
+      <div className="w-14 h-14 rounded-3xl bg-kimojo-red flex items-center justify-center shadow-float">
+        <span className="font-display font-bold text-white text-xl">K</span>
+      </div>
+      <div>
+        <h1 className="font-display font-bold text-ink text-[17px]">Profil konnte nicht geladen werden</h1>
+        <p className="text-ink-muted font-body text-sm mt-1.5">
+          Meistens hilft eine neue Anmeldung.
+        </p>
+        <p className="text-ink-faint font-body text-xs mt-3 break-words">
+          {error?.errorCode || error?.message || String(error)}
+        </p>
+      </div>
+      <button
+        onClick={() => instance.loginRedirect(loginRequest).catch(console.error)}
+        className="px-5 py-3 rounded-xl bg-ink text-white font-display font-semibold text-sm active:scale-[0.98] transition-transform"
+      >
+        Neu anmelden
+      </button>
+    </div>
   )
 }
 

@@ -1,3 +1,4 @@
+import { InteractionRequiredAuthError } from '@azure/msal-browser'
 import { msalInstance, loginRequest } from './authConfig'
 import { GRAPH_CONFIG, SP_STATUS } from '@/config'
 
@@ -9,11 +10,21 @@ const ERR = (...a) => console.error('❌ KIMOJO', ...a)
 async function getAccessToken() {
   const accounts = msalInstance.getAllAccounts()
   if (accounts.length === 0) throw new Error('Nicht angemeldet')
-  const result = await msalInstance.acquireTokenSilent({
-    ...loginRequest,
-    account: accounts[0],
-  })
-  return result.accessToken
+  try {
+    const result = await msalInstance.acquireTokenSilent({
+      ...loginRequest,
+      account: accounts[0],
+    })
+    return result.accessToken
+  } catch (err) {
+    // Die stille Erneuerung scheitert z.B., wenn sich die Berechtigungen der
+    // App-Registrierung geändert haben und neu zugestimmt werden muss. Ohne
+    // diesen Umweg bliebe die App ewig im Ladebildschirm stehen.
+    if (err instanceof InteractionRequiredAuthError) {
+      await msalInstance.acquireTokenRedirect({ ...loginRequest, account: accounts[0] })
+    }
+    throw err
+  }
 }
 
 async function graphFetch(path, options = {}) {
