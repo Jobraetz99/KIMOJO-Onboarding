@@ -23,7 +23,9 @@ export default function ProzesshelferView({ user }) {
   const useSso = helper.tokenUrl && !chatFailed
 
   return (
-    <div className="flex-1 flex flex-col">
+    // min-h-0 ist Pflicht: ohne das wächst der Chat über den Container hinaus,
+    // statt in sich zu scrollen – dann ist das Eingabefeld nicht mehr erreichbar.
+    <div className="flex-1 min-h-0 flex flex-col">
       {useSso ? (
         <Suspense fallback={<LoadingPane label={helper.label} />}>
           <CopilotChat helper={helper} user={user} onFailure={handleChatFailure} />

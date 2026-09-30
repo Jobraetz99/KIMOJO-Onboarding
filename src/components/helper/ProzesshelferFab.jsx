@@ -38,12 +38,17 @@ export default function ProzesshelferFab({ user, open, onToggle }) {
         )}
       </AnimatePresence>
 
+      {/* dvh statt vh: auf dem iPhone schiebt sich das Sheet sonst unter die
+          Safari-Leiste und das Eingabefeld ist nicht mehr erreichbar. */}
       {mounted && (
         <div
           className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-[2rem] shadow-float flex flex-col transition-transform duration-300 ${
             open ? 'translate-y-0' : 'translate-y-full pointer-events-none'
           }`}
-          style={{ height: 'min(85vh, 44rem)' }}
+          style={{
+            height: 'min(85dvh, 44rem)',
+            paddingBottom: 'env(safe-area-inset-bottom)',
+          }}
           aria-hidden={!open}
         >
           <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100">
@@ -68,15 +73,19 @@ export default function ProzesshelferFab({ user, open, onToggle }) {
         </div>
       )}
 
-      <motion.button
-        onClick={() => onToggle(!open)}
-        whileTap={{ scale: 0.9 }}
-        className={`fixed z-[60] w-14 h-14 rounded-full ${accent} shadow-float flex items-center justify-center`}
-        style={{ bottom: 'max(2rem, calc(env(safe-area-inset-bottom) + 1rem))', left: '1.5rem' }}
-        aria-label={helper.label}
-      >
-        {open ? <X size={22} className="text-white" /> : <Bot size={20} className="text-white" />}
-      </motion.button>
+      {/* Im geöffneten Zustand ausgeblendet – sonst liegt der Button über dem
+          Chatverlauf. Zum Schliessen gibt es das X in der Sheet-Kopfzeile. */}
+      {!open && (
+        <motion.button
+          onClick={() => onToggle(true)}
+          whileTap={{ scale: 0.9 }}
+          className={`fixed z-40 w-14 h-14 rounded-full ${accent} shadow-float flex items-center justify-center`}
+          style={{ bottom: 'max(2rem, calc(env(safe-area-inset-bottom) + 1rem))', left: '1.5rem' }}
+          aria-label={helper.label}
+        >
+          <Bot size={20} className="text-white" />
+        </motion.button>
+      )}
     </>
   )
 }
