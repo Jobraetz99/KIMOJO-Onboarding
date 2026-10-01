@@ -28,3 +28,31 @@ html, body {
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Textbausteine der SharePoint-Portalseite. Das HTML kommt unformatiert aus
+   Graph, Tailwind setzt die Standardstile zurück – hier wieder herstellen. */
+.portal-text h1,
+.portal-text h2,
+.portal-text h3 {
+  font-family: theme('fontFamily.display');
+  font-weight: 700;
+  color: theme('colors.ink');
+  margin: 0.75rem 0 0.35rem;
+  line-height: 1.3;
+}
+.portal-text h1 { font-size: 1.15rem; }
+.portal-text h2 { font-size: 1.05rem; }
+.portal-text h3 { font-size: 0.95rem; }
+.portal-text p { margin: 0.4rem 0; }
+.portal-text ul,
+.portal-text ol { margin: 0.4rem 0 0.4rem 1.1rem; }
+.portal-text ul { list-style: disc; }
+.portal-text ol { list-style: decimal; }
+.portal-text li { margin: 0.15rem 0; }
+.portal-text a {
+  color: theme('colors.kimojo-red');
+  text-decoration: underline;
+  word-break: break-word;
+}
+.portal-text strong { font-weight: 600; }
+.portal-text img { max-width: 100%; height: auto; border-radius: 0.75rem; }

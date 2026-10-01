@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify'
 import { InteractionRequiredAuthError } from '@azure/msal-browser'
 import { msalInstance, loginRequest } from './authConfig'
 import { GRAPH_CONFIG, SP_STATUS } from '@/config'
@@ -740,6 +741,134 @@ export async function resolveUrlFile(driveId, itemId) {
   } catch (e) {
     ERR('resolveUrlFile Fehler:', e.message)
     return null
+  }
+}
+
+// ─── Portal-Startseite laden ────────────────────────────────────────────────
+// SharePoint-Seiten lassen sich nicht einbetten (X-Frame-Options: SAMEORIGIN),
+// deshalb holen wir den Seiteninhalt über Graph und bauen ihn in der App nach.
+// Geliefert werden nur die Bausteine, die wir darstellen können – Text und
+// Kachel-/Linklisten (Quicklinks, Hero). Alles andere wird ausgelassen.
+
+// Quicklinks und Hero legen Titel, Ziel und Bild getrennt in
+// serverProcessedContent ab, verbunden nur über den Schlüssel "items[N].…".
+// Deshalb wird hier nach der laufenden Nummer gruppiert statt nach festen
+// Schlüsselnamen – die unterscheiden sich je nach Webpart-Variante.
+function extractLinkItems(webPart) {
+  const spc = webPart?.data?.serverProcessedContent
+  if (!spc) return []
+
+  const byIndex = new Map()
+  const put = (key, field, value) => {
+    const n = key.match(/^items\[(\d+)\]/)?.[1]
+    if (n === undefined || !value) return
+    const entry = byIndex.get(n) ?? {}
+    if (!entry[field]) entry[field] = value
+    byIndex.set(n, entry)
+  }
+
+  for (const { key, value } of spc.searchablePlainTexts ?? []) {
+    if (/title$/i.test(key)) put(key, 'title', value)
+    else if (/description$/i.test(key)) put(key, 'description', value)
+  }
+  for (const { key, value } of spc.links ?? []) {
+    if (/url$/i.test(key)) put(key, 'url', value)
+  }
+
+  return [...byIndex.entries()]
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .map(([, v]) => v)
+    .filter(item => item.title && item.url)
+}
+
+function mapWebPart(webPart) {
+  const type = webPart?.['@odata.type'] ?? ''
+
+  if (type.endsWith('textWebPart')) {
+    const raw = webPart?.innerHtml?.trim()
+    if (!raw) return null
+    // Der Text kommt als rohes HTML aus SharePoint und landet per
+    // dangerouslySetInnerHTML im DOM – vorher zwingend säubern.
+    const html = DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } }).trim()
+    return html ? { kind: 'text', html } : null
+  }
+
+  if (type.endsWith('standardWebPart')) {
+    const items = extractLinkItems(webPart)
+    if (items.length === 0) return null
+    return {
+      kind:  'links',
+      title: webPart?.data?.title?.trim() || '',
+      items,
+    }
+  }
+
+  return null
+}
+
+export async function fetchPortalPage(siteUrl) {
+  const siteId = await resolveSiteIdFromUrl(siteUrl)
+  if (!siteId) throw new Error('Portal-Seite nicht gefunden')
+
+  const list = await graphFetch(
+    `/sites/${siteId}/pages/microsoft.graph.sitePage` +
+    `?$select=id,name,title,webUrl,promotionKind&$top=100`
+  )
+  const pages = list?.value ?? []
+  // Die Startseite heisst in jedem modernen Teamportal Home.aspx; falls nicht,
+  // nehmen wir die erste normale Seite (keinen Newsbeitrag).
+  const home = pages.find(p => /^home\.aspx$/i.test(p.name ?? ''))
+    ?? pages.find(p => p.promotionKind !== 'newsPost')
+  if (!home) throw new Error('Keine Startseite gefunden')
+
+  const page = await graphFetch(
+    `/sites/${siteId}/pages/${home.id}/microsoft.graph.sitePage?$expand=canvasLayout`
+  )
+
+  const webParts = [
+    ...(page?.canvasLayout?.horizontalSections ?? [])
+      .flatMap(s => s.columns ?? [])
+      .flatMap(c => c.webparts ?? []),
+    ...(page?.canvasLayout?.verticalSection?.webparts ?? []),
+  ]
+
+  const blocks = webParts.map(mapWebPart).filter(Boolean)
+  DBG(`fetchPortalPage: ${webParts.length} Webparts, ${blocks.length} darstellbar`)
+
+  return {
+    title:  page?.title ?? home.title ?? '',
+    webUrl: page?.webUrl ?? home.webUrl ?? siteUrl,
+    blocks,
+  }
+}
+
+// ─── Newsbeiträge der Portal-Seite ──────────────────────────────────────────
+export async function fetchPortalNews(siteUrl, limit = 5) {
+  try {
+    const siteId = await resolveSiteIdFromUrl(siteUrl)
+    if (!siteId) return []
+
+    const data = await graphFetch(
+      `/sites/${siteId}/pages/microsoft.graph.sitePage` +
+      `?$select=id,title,description,webUrl,promotionKind,publishingState,lastModifiedDateTime&$top=100`
+    )
+    const news = (data?.value ?? [])
+      .filter(p => p.promotionKind === 'newsPost')
+      .filter(p => p.publishingState?.level !== 'checkout')
+      .sort((a, b) => new Date(b.lastModifiedDateTime) - new Date(a.lastModifiedDateTime))
+      .slice(0, limit)
+
+    DBG(`fetchPortalNews: ${news.length} Beiträge`)
+    return news.map(p => ({
+      id:       p.id,
+      title:    p.title,
+      teaser:   p.description ?? '',
+      url:      p.webUrl,
+      modified: p.lastModifiedDateTime,
+    }))
+  } catch (e) {
+    ERR('fetchPortalNews Fehler:', e.message)
+    return []
   }
 }
 
